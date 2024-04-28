@@ -1,6 +1,13 @@
-﻿namespace ApplicationDev.Common.Constants
+﻿using System.ComponentModel;
+
+namespace ApplicationDev.Common.Constants
 {
-	public class Group
+	public enum Group
 	{
+		[Description("admin")]
+		Admin,
+
+		[Description("user")]
+		User
 	}
 }

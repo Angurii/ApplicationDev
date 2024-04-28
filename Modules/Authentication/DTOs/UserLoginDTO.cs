@@ -1,6 +1,8 @@
 ﻿namespace ApplicationDev.Modules.Authentication.DTOs
 {
-	public class UserLoginDTo
+	public record UserLoginDTO
 	{
+		public required string UserName { get; set; }
+		public required string Password { get; set; }
 	}
 }
