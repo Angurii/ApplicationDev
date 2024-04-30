@@ -16,7 +16,7 @@ namespace ApplicationDev.Common.Database.BaseRepository
 			_context = context;
 			_dbSet = context.Set<T>();
 		}
-		//CRUD Operation
+		//CRUD
 		public async Task<IEnumerable<T>> GetAllAsync()
 		{
 			return await _dbSet.ToListAsync();
