@@ -1,12 +1,13 @@
-using ApplicationDev.Common.Database.DatabaseContext;
 using ApplicationDev.Common.Middleware.Errors;
+using ApplicationDev.Common.Middleware.Response;
+using ApplicationDev.Modules.Admin.Repos;
+using ApplicationDev.Modules.Admin.Services;
 using ApplicationDev.Modules.User.Repos;
 using ApplicationDev.Modules.User.Services;
-using ApplicationDev.Modules.Authentication.Services;
-using ApplicationDev.Common.Middleware.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-
+using ApplicationDev.Common.Middlewares.Authentication;
+using ApplicationDev.Modules.Authentication.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MyAppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString")));
@@ -26,6 +27,24 @@ builder.Services.AddSwaggerGen(c => //swaggerGen method takes a configuration ac
 		BearerFormat = "JWT",
 		Scheme = "bearer"
 	});
+
+	c.AddSecurityRequirement(new OpenApiSecurityRequirement
+		{
+			{
+				new OpenApiSecurityScheme
+				{
+					Reference = new OpenApiReference
+					{
+						Type = ReferenceType.SecurityScheme,
+						Id = "Bearer"
+					},
+					Scheme = "oauth2",
+					Name = "Bearer",
+					In = ParameterLocation.Header,
+				},
+				new List<string>()
+			}
+		});
 
 	//Swagger document for Admin APIs
 	c.SwaggerDoc("admin", new OpenApiInfo { Title = "Admin API", Version = "v1" });
@@ -54,9 +73,22 @@ builder.Services.AddScoped<UserService>();
 //Auth Injectable
 builder.Services.AddScoped<AuthenticationService>();
 
+// Add services to the container.
+builder.Services.AddScoped<RoleAuthentication>();
+
+//Admin Injectable
+builder.Services.AddScoped<AdminRepository>();
+builder.Services.AddScoped<AdminService>();
+
 var app = builder.Build();
 app.UseMiddleware<ErrorFilter>();
 app.UseMiddleware<ResponseInterceptor>();
+
+using (var scope = app.Services.CreateScope())
+{
+	var adminService = scope.ServiceProvider.GetRequiredService<AdminService>();
+	adminService.SeedAdmin().Wait(); // This ensures the method runs and completes before continuing.
+}
 
 
 // Configure the HTTP request pipeline.
