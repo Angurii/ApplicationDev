@@ -20,8 +20,11 @@ namespace ApplicationDev.Modules.User.Services
 
 		public async Task<UserEntity> CreateUser(UserCreateDTO data)
 		{
+			//Verify if Email is Legit or not
+
 			//Check if that user is already registered or not
-			UserEntity? existingUser = await _userRepo.FindOne(x => x.UserName == data.UserName);
+			//Even user name exists or email exists throw error
+			UserEntity? existingUser = await _userRepo.FindOne(x => x.UserName == data.UserName || x.Email == data.Email);
 
 			//If found throw conflict error
 			if (existingUser != null)
@@ -33,7 +36,7 @@ namespace ApplicationDev.Modules.User.Services
 			string hashedPassword = BCrypt.Net.BCrypt.HashPassword(data.Password);
 			_logger.LogInformation("Hashed Password: " + hashedPassword);
 
-			UserEntity userDataToSend = new UserEntity { Name = data.Name, Password = hashedPassword, UserName = data.UserName };
+			UserEntity userDataToSend = new UserEntity { Email = data.Email, Name = data.Name, Password = hashedPassword, UserName = data.UserName };
 
 			UserEntity createdUser = await _userRepo.CreateAsync(userDataToSend, true);
 
@@ -44,9 +47,13 @@ namespace ApplicationDev.Modules.User.Services
 			return await _userRepo.FindByIdAsync(id);
 		}
 
-		async public Task<UserEntity?> FindOne(string userName)
+		async public Task<UserEntity?> FindOneByUserName(string userName)
 		{
 			return await _userRepo.FindOne(x => x.UserName == userName);
+		}
+		async public Task<UserEntity?> FindOneByEmail(string email)
+		{
+			return await _userRepo.FindOne(x => x.Email == email);
 		}
 	}
 }

@@ -20,7 +20,7 @@ namespace ApplicationDev.Modules.User.Controllers
 
 
 		[HttpPost("register")]
-		[ServiceFilter(typeof(RoleAuthentication))]
+		// [ServiceFilter(typeof(RoleAuthFilter))]
 		public async Task<IActionResult> CreateUser(UserCreateDTO incomingData)
 		{
 			try
