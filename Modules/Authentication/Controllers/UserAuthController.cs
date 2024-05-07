@@ -5,6 +5,7 @@ using ApplicationDev.Modules.User.Services;
 using ApplicationDev.Modules.Authentication.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using ApplicationDev.Modules.User.DTOs;
 
 namespace ApplicationDev.Modules.Authentication.Controllers
 {
@@ -26,7 +27,7 @@ namespace ApplicationDev.Modules.Authentication.Controllers
 		}
 
 		[HttpPost("login")]
-		async public Task<IActionResult> Login([FromBody] UserLoginDTO incomingData)
+		public async Task<IActionResult> Login([FromBody] UserLoginDTO incomingData)
 		{
 			try
 			{
@@ -48,14 +49,40 @@ namespace ApplicationDev.Modules.Authentication.Controllers
 					throw new HttpException(HttpStatusCode.NotFound, "User Not Found");
 				}
 
+				if (user.IsActive == false)
+				{
+					throw new HttpException(HttpStatusCode.BadRequest, "User Not Found");
+				}
+				string token = _authService.Login(user, incomingData, "user");
 				HttpContext.Items["CustomMessage"] = "User LoggedIn Successfully";
-				return Ok(_authService.Login(user, incomingData, "user"));
+				return Ok(token);
 
 			}
 			catch (Exception)
 			{
 				throw;
 			}
+		}
+
+		[HttpGet("verify-email/{email}")]
+		public async Task<IActionResult> VerifyEmail(string email)
+		{
+			//Decode Email
+			email = WebUtility.UrlDecode(email);
+			//From Email check that email
+			UserEntity? existingUser = await _userService.FindOneByEmail(email);
+			if (existingUser == null)
+			{
+				throw new HttpException(HttpStatusCode.NotFound, "User not Found");
+			}
+
+			//Update User 
+			existingUser.IsActive = true;
+			UserEntity updatedData = await _userService.ActivateUser(existingUser);
+			UserResponseDTO responseData = new UserResponseDTO { Id = updatedData.id };
+			HttpContext.Items["CustomMessage"] = "User Created Successfully";
+			//Redirect user to login page in frontend
+			return Redirect("http://localhost:3000/login");
 		}
 
 	}

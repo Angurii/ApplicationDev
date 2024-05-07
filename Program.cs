@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using ApplicationDev.Common.Middlewares.Authentication;
 using ApplicationDev.Modules.Authentication.Services;
+
+using ApplicationDev.Common.Helper.EmailService;
+using dotenv.net;
+using ApplicationDev.Modules.Blogs.Repos;
+using ApplicationDev.Modules.Blogs.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MyAppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString")));
@@ -82,6 +88,14 @@ builder.Services.AddScoped<RoleAuthentication>();
 builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<AdminService>();
 
+//Blogs Injectable
+builder.Services.AddScoped<BlogRepository>();
+builder.Services.AddScoped<BlogService>();
+
+//Helper Injectable
+builder.Services.AddScoped<EmailService>();
+
+
 // Define CORS policy
 builder.Services.AddCors(options =>
 {
@@ -124,4 +138,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+DotEnv.Load();
 app.Run();

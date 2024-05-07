@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace ApplicationDev.Common.Middlewares.Authentication
 {
 
+
 	public class RoleAuthentication : IActionFilter
 	{
 		private readonly ILogger<RoleAuthentication> _logger;
@@ -29,17 +30,32 @@ namespace ApplicationDev.Common.Middlewares.Authentication
 
 				var jwtToken = new JwtSecurityToken(token);
 				var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "role");
+				var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
 
+				string roleFromToken = roleClaim?.Value;
+				string userId = userIdClaim?.Value;
 
-				string roleFromToken = roleClaim.Value;
+				if (roleFromToken == null)
+				{
+					throw new HttpException(HttpStatusCode.Unauthorized, "Role claim not found in token");
+				}
+
+				if (userId == null)
+				{
+					throw new HttpException(HttpStatusCode.Unauthorized, "User ID claim not found in token");
+				}
 				string roleFromUrl = context.HttpContext.Request.Path.Value.Split('/')[2]; // Get the role from the URL
-				_logger.LogInformation("This is Role from url: " + roleFromUrl);
-				_logger.LogInformation("Role from token: {roleFromToken}", roleFromToken);
+
 
 				if (roleFromToken != roleFromUrl)
 				{
 					throw new HttpException(HttpStatusCode.Forbidden, "Not Authorized");
 				}
+				if (userIdClaim != null)
+				{
+					context.HttpContext.Items["UserId"] = userIdClaim.Value;
+				}
+
 			}
 			catch (Exception)
 			{

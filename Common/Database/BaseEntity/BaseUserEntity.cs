@@ -1,10 +1,22 @@
-﻿namespace ApplicationDev.Common.Database.BaseEntity
+﻿
+using System.ComponentModel.DataAnnotations;
+
+namespace ApplicationDev.Common.Database.BaseEntity
 {
+	public class BaseUserEntity : BaseEntity
+	{
+		[Required]
+		public string UserName { get; set; }
 
-		public class BaseUserEntity : BaseEntity
+		[Required]
+		public string Password { get; set; }
+
+		public bool? IsActive { get; set; }
+
+		public BaseUserEntity()
 		{
-			public required string UserName { get; set; }
-			public required string Password { get; set; }
+			IsActive = false;
 		}
-
+	}
 }
+

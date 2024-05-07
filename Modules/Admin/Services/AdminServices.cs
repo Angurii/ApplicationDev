@@ -38,5 +38,10 @@ namespace ApplicationDev.Modules.Admin.Services
 		{
 			return await _adminRepo.FindOne(x => x.UserName == userName);
 		}
+
+		public async Task<AdminEntity?> GetUserByIdAsync(int id)
+		{
+			return await _adminRepo.FindByIdAsync(id);
+		}
 	}
 }

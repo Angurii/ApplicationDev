@@ -13,6 +13,8 @@ namespace ApplicationDev.Modules.Authentication.Services
 {
 	public class AuthenticationService
 	{
+
+
 		private const string SecretKey = "your_secret_key_here_ahdkahdkjashksaaskh_Nishan_Raut_hdkjashdkjsakdhsa_Raut_Nishan";
 		private readonly ILogger<AuthenticationService> _logger;
 		public AuthenticationService(ILogger<AuthenticationService> logger)
@@ -57,15 +59,14 @@ namespace ApplicationDev.Modules.Authentication.Services
 		}
 		private string GenerateToken(string userId, string role)
 		{
-			_logger.LogInformation("This is UserId: " + userId);
 
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
 				Subject = new ClaimsIdentity(new[]
 				{
-				new Claim(ClaimTypes.NameIdentifier, userId),
-				new Claim(ClaimTypes.Role, role)
+				new Claim("userId", userId),
+				new Claim("role", role)
 			}),
 				Expires = DateTime.UtcNow.AddHours(1), // Token expiration time
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey)), SecurityAlgorithms.HmacSha256Signature)
