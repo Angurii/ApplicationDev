@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationDev.Migrations
 {
     [DbContext(typeof(MyAppDbContext))]
-    partial class MyAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240509053250_vote")]
+    partial class vote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,6 +57,37 @@ namespace ApplicationDev.Migrations
                     b.ToTable("Admin");
                 });
 
+            modelBuilder.Entity("ApplicationDev.Modules.Blogs.Entity.BlogComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlogEntityId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DownVote")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UpVote")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogEntityId");
+
+                    b.ToTable("BlogComments");
+                });
+
             modelBuilder.Entity("ApplicationDev.Modules.Blogs.Entity.BlogEntity", b =>
                 {
                     b.Property<int>("id")
@@ -92,55 +126,6 @@ namespace ApplicationDev.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("ApplicationDev.Modules.Comments.Entity.CommentsEntity", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<int>("BlogId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CommentedUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CommentedUserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DownVote")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ParentCommentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UpVote")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("BlogId");
-
-                    b.HasIndex("ParentCommentId");
-
-                    b.ToTable("BlogComments");
                 });
 
             modelBuilder.Entity("ApplicationDev.Modules.User.Entity.UserEntity", b =>
@@ -192,10 +177,7 @@ namespace ApplicationDev.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<int?>("BlogId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CommentsId")
+                    b.Property<int>("BlogId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -214,9 +196,18 @@ namespace ApplicationDev.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.HasIndex("CommentsId");
-
                     b.ToTable("Votes");
+                });
+
+            modelBuilder.Entity("ApplicationDev.Modules.Blogs.Entity.BlogComment", b =>
+                {
+                    b.HasOne("ApplicationDev.Modules.Blogs.Entity.BlogEntity", "BlogEntity")
+                        .WithMany("Comments")
+                        .HasForeignKey("BlogEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BlogEntity");
                 });
 
             modelBuilder.Entity("ApplicationDev.Modules.Blogs.Entity.BlogEntity", b =>
@@ -245,32 +236,13 @@ namespace ApplicationDev.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ApplicationDev.Modules.Comments.Entity.CommentsEntity", b =>
-                {
-                    b.HasOne("ApplicationDev.Modules.Blogs.Entity.BlogEntity", "BlogEntity")
-                        .WithMany("Comments")
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApplicationDev.Modules.Comments.Entity.CommentsEntity", "ParentComment")
-                        .WithMany()
-                        .HasForeignKey("ParentCommentId");
-
-                    b.Navigation("BlogEntity");
-
-                    b.Navigation("ParentComment");
-                });
-
             modelBuilder.Entity("ApplicationDev.Modules.Votes.Entity.VoteEntity", b =>
                 {
                     b.HasOne("ApplicationDev.Modules.Blogs.Entity.BlogEntity", "Blog")
                         .WithMany("Votes")
-                        .HasForeignKey("BlogId");
-
-                    b.HasOne("ApplicationDev.Modules.Comments.Entity.CommentsEntity", "Comment")
-                        .WithMany("Votes")
-                        .HasForeignKey("CommentsId");
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.OwnsOne("ApplicationDev.Modules.Blogs.Entity.UserInfo", "VoteUser", b1 =>
                         {
@@ -294,8 +266,6 @@ namespace ApplicationDev.Migrations
 
                     b.Navigation("Blog");
 
-                    b.Navigation("Comment");
-
                     b.Navigation("VoteUser")
                         .IsRequired();
                 });
@@ -304,11 +274,6 @@ namespace ApplicationDev.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Votes");
-                });
-
-            modelBuilder.Entity("ApplicationDev.Modules.Comments.Entity.CommentsEntity", b =>
-                {
                     b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618

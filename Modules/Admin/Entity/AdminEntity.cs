@@ -1,4 +1,4 @@
-﻿using ApplicationDev.Common.Database.BaseEntity;
+﻿using ApplicationDev.Common.Database.Base_Entity;
 
 namespace ApplicationDev.Modules.Admin.Entity
 {

@@ -2,7 +2,7 @@
 using ApplicationDev.Modules.User.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationDev.Common.Middlewares.Authentication;
+using ApplicationDev.Common.Middleware.Authentication;
 using ApplicationDev.Modules.User.Entity;
 namespace ApplicationDev.Modules.User.Controllers
 {

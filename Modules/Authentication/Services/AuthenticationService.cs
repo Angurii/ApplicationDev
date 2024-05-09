@@ -3,7 +3,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Text;
-using ApplicationDev.Common.Database.BaseEntity;
+using ApplicationDev.Common.Database.Base_Entity;
 using ApplicationDev.Common.Exceptions;
 using ApplicationDev.Modules.Authentication.DTOs;
 using Microsoft.AspNetCore.Server.HttpSys;

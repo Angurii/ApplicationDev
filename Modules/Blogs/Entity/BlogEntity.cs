@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using ApplicationDev.Common.Database.BaseEntity;
+using ApplicationDev.Common.Database.Base_Entity;
+using ApplicationDev.Modules.Votes.Entity;
+using ApplicationDev.Modules.Comments.Entity;
 
 namespace ApplicationDev.Modules.Blogs.Entity
 {
@@ -12,15 +14,18 @@ namespace ApplicationDev.Modules.Blogs.Entity
 
 		public required UserInfo PostUser { get; set; }
 		public required string ImgUrl { get; set; }
-		public required int UpVote { get; set; }
-		public required int DownVote { get; set; }
-		public ICollection<BlogComment> Comments { get; set; } = new List<BlogComment>();
+		public int UpVote { get; set; } = 0;
+		public int DownVote { get; set; } = 0;
+		public ICollection<VoteEntity> Votes { get; set; } = new List<VoteEntity>();
+		public ICollection<CommentsEntity> Comments { get; set; } = new List<CommentsEntity>();
 
 
 	}
 	public class UserInfo()
 	{
-		public required string UserId { get; set; }
+		public required int UserId { get; set; }
 		public required string Name { get; set; }
 	}
+
+
 }

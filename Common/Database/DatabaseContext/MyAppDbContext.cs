@@ -2,6 +2,9 @@
 using ApplicationDev.Modules.Admin.Entity;
 using Microsoft.EntityFrameworkCore;
 using ApplicationDev.Modules.Blogs.Entity;
+using ApplicationDev.Modules.Votes.Entity;
+using ApplicationDev.Modules.Comments.Entity;
+
 public class MyAppDbContext : DbContext
 {
 	//Ensure to add the DbSet for each entity
@@ -10,7 +13,8 @@ public class MyAppDbContext : DbContext
 	public DbSet<AdminEntity> Admin { get; set; }
 	public DbSet<BlogEntity> Blogs { get; set; }
 
-	public DbSet<BlogComment> BlogComments { get; set; }
+	public DbSet<CommentsEntity> BlogComments { get; set; }
+	public DbSet<VoteEntity> Votes { get; set; }
 
 
 	public MyAppDbContext(DbContextOptions<MyAppDbContext> options)
@@ -22,5 +26,6 @@ public class MyAppDbContext : DbContext
 	{
 		base.OnModelCreating(modelBuilder);
 		modelBuilder.Entity<BlogEntity>().OwnsOne(b => b.PostUser); //Because it is not actual a existing table and only used as type
+		modelBuilder.Entity<VoteEntity>().OwnsOne(b => b.VoteUser);
 	}
 }

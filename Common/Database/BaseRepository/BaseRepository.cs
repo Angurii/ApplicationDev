@@ -1,35 +1,68 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using ApplicationDev.Common.Database.BaseEntity;
+using ApplicationDev.Common.Constants.Enums;
+using ApplicationDev.Common.Database.Base_Entity;
 using ApplicationDev.Common.Database.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using ApplicationDev.Common.Middleware.Response;
 
 namespace ApplicationDev.Common.Database.BaseRepository
 {
-	public class BaseRepository<T> : IDatabaseBaseInterface<T> where T : class
+	public class BaseRepository<T> : IDatabaseBaseInterface<T> where T : BaseEntity
 	{
 		protected readonly DbContext _context;
 		private readonly DbSet<T> _dbSet;
+
 
 		public BaseRepository(DbContext context)
 		{
 			_context = context;
 			_dbSet = context.Set<T>();
 		}
+
 		//CRUD
 		public async Task<IEnumerable<T>> GetAllAsync()
 		{
 			return await _dbSet.ToListAsync();
 		}
 
+		public async Task<PaginatedResponse<T>> GetAllPaginatedAsync(int pageNumber, ShortByEnum shortBy)
+		{
+			int dataPerPage = 20; //Get through enum or constant
+			var totalCount = await _dbSet.Where(entity => entity.DeletedAt == null).CountAsync();
+			IQueryable<T> sortedData;
+
+
+			if (shortBy == ShortByEnum.Latest)
+			{
+				sortedData = _dbSet.Where(entity => entity.DeletedAt == null).OrderByDescending(entity => entity.CreatedAt);
+			}
+			else // SortOrder.Oldest
+			{
+				sortedData = _dbSet.Where(entity => entity.DeletedAt == null).OrderBy(entity => entity.CreatedAt);
+			}
+
+			IEnumerable<T> data = await sortedData.Skip((pageNumber - 1) * dataPerPage).Take(dataPerPage).ToListAsync();
+			return new PaginatedResponse<T>
+			{
+				PageNumber = pageNumber,
+				DataPerPage = dataPerPage,
+				TotalCount = totalCount,
+				Data = data,
+			};
+
+		}
+
 		public async Task<T?> FindByIdAsync(int id)
 		{
-			return await _dbSet.FindAsync(id);
+
+			return await _dbSet.Where(entity => entity.DeletedAt == null).SingleOrDefaultAsync(entity => entity.id == id);
 		}
 
 		public async Task<T?> FindOne(Expression<Func<T, bool>> predicate)
 		{
-			return await _dbSet.FirstOrDefaultAsync(predicate);
+			return await _dbSet.Where(entity => entity.DeletedAt == null).FirstOrDefaultAsync(predicate);
 		}
 
 		public async Task<T> CreateAsync(T entity, bool UseTransaction = false)
@@ -112,6 +145,11 @@ namespace ApplicationDev.Common.Database.BaseRepository
 			}
 		}
 
+		// public async Task<T> SoftDeleteAsync(T entity)
+		// {
+		//     return await UpdateAsync(entity);
+		// }
+
 		public async Task<T> SoftDeleteAsync(T entity, bool useTransaction = false)
 		{
 			if (useTransaction)
@@ -137,6 +175,12 @@ namespace ApplicationDev.Common.Database.BaseRepository
 			}
 			return entity;
 		}
+
+		public async Task<T?> FindByIdIncludingDeletedAsync(int id)
+		{
+			return await _dbSet.SingleOrDefaultAsync(entity => entity.id == id);
+		}
+
 
 	}
 }

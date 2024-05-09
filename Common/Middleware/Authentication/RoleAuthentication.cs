@@ -4,7 +4,7 @@ using ApplicationDev.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace ApplicationDev.Common.Middlewares.Authentication
+namespace ApplicationDev.Common.Middleware.Authentication
 {
 
 

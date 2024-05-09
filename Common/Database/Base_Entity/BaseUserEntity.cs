@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
-namespace ApplicationDev.Common.Database.BaseEntity
+namespace ApplicationDev.Common.Database.Base_Entity
 {
 	public class BaseUserEntity : BaseEntity
 	{

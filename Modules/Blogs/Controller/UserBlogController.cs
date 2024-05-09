@@ -1,33 +1,34 @@
-﻿using System.Net;
+﻿using ApplicationDev.Common.Constants.Enums;
 using ApplicationDev.Common.DTOs;
 using ApplicationDev.Common.Exceptions;
-using ApplicationDev.Modules.Admin.Entity;
-using ApplicationDev.Modules.Admin.Services;
+using ApplicationDev.Common.Middleware.Response;
+using ApplicationDev.Common.Middleware.Authentication;
 using ApplicationDev.Modules.Blogs.DTOs;
 using ApplicationDev.Modules.Blogs.Entity;
 using ApplicationDev.Modules.Blogs.Services;
-using ApplicationDev.Common.Middleware.Authentication;
+using ApplicationDev.Modules.User.Entity;
+using ApplicationDev.Modules.User.Services;
+using CourseWork.Modules.Blogs.Controller;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationDev.Common.Constants.Enums;
-using ApplicationDev.Common.Middleware.Response;
+using System.Net;
 
-namespace CourseWork.Modules.Blogs.Controller
+namespace ApplicationDev.Modules.Blogs.Controller
 {
-	[ApiExplorerSettings(GroupName = "admin")]
+	[ApiExplorerSettings(GroupName = "user")]
 	[Tags("Blogs")]
-	[Route("api/admin/blogs")]
-	public class AdminBlogController : ControllerBase
+	[Route("api/user/blogs")]
+	public class UserBlogController : ControllerBase
 	{
 		private readonly BlogService _blogService;
 		private readonly ILogger<AdminBlogController> _logger;
 
-		private readonly AdminService _adminService;
+		private readonly UserService _userService;
 
-		public AdminBlogController(BlogService blogService, ILogger<AdminBlogController> logger, AdminService adminService)
+		public UserBlogController(BlogService blogService, ILogger<AdminBlogController> logger, UserService userService)
 		{
 			_blogService = blogService;
 			_logger = logger;
-			_adminService = adminService;
+			_userService = userService;
 		}
 
 		[HttpPost("create")]
@@ -36,18 +37,18 @@ namespace CourseWork.Modules.Blogs.Controller
 		{
 			string userId = (HttpContext.Items["UserId"] as string)!; //Since we are using the RoleAuthFilter, we can safely assume that the UserId is a string and never null
 			int parseUserId = int.Parse(userId); // Convert the string to an int
-			AdminEntity? adminUser = await _adminService.GetUserByIdAsync(parseUserId);
+			UserEntity? user = await _userService.GetUserByIdAsync(parseUserId);
 
-			if (adminUser == null)
+			if (user == null)
 			{
 				throw new HttpException(HttpStatusCode.NotFound, "Admin not found");
 			}
-			var adminInfo = new CommonUserDTO()
+			CommonUserDTO userInfo = new CommonUserDTO()
 			{
-				UserId = adminUser.id.ToString(),
-				Name = adminUser.UserName
+				UserId = user.id.ToString(),
+				Name = user.Name
 			};
-			BlogEntity result = await _blogService.CreateBlogs(incomingData, adminInfo);
+			BlogEntity result = await _blogService.CreateBlogs(incomingData, userInfo);
 
 			HttpContext.Items["CustomMessage"] = "Blog Created Successfully";
 			return Created("", result);
@@ -90,16 +91,16 @@ namespace CourseWork.Modules.Blogs.Controller
 		{
 			string userId = (HttpContext.Items["UserId"] as string)!; //Since we are using the RoleAuthFilter, we can safely assume that the UserId is a string and never null
 			int parseUserId = int.Parse(userId); // Convert the string to an int
-			AdminEntity? adminUser = await _adminService.GetUserByIdAsync(parseUserId);
+			UserEntity? user = await _userService.GetUserByIdAsync(parseUserId);
 
-			if (adminUser == null)
+			if (user == null)
 			{
 				throw new HttpException(HttpStatusCode.NotFound, "Admin not found");
 			}
-			var adminInfo = new CommonUserDTO()
+			CommonUserDTO userInfo = new CommonUserDTO()
 			{
-				UserId = adminUser.id.ToString(),
-				Name = adminUser.UserName
+				UserId = user.id.ToString(),
+				Name = user.UserName
 			};
 
 			//Check if that blog exists or not
@@ -109,7 +110,7 @@ namespace CourseWork.Modules.Blogs.Controller
 				throw new HttpException(HttpStatusCode.NotFound, "Blog with that id was not found");
 			}
 
-			BlogEntity result = await _blogService.UpdateBlogs(incomingData, adminInfo, existingBlog);
+			BlogEntity result = await _blogService.UpdateBlogs(incomingData, userInfo, existingBlog);
 
 			HttpContext.Items["CustomMessage"] = "Blog Updated Successfully";
 			return result;
@@ -139,5 +140,6 @@ namespace CourseWork.Modules.Blogs.Controller
 
 			return await _blogService.HardDelete(int.Parse(blog));
 		}
+
 	}
 }

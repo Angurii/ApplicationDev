@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using ApplicationDev.Common.Database.BaseEntity;
+using ApplicationDev.Common.Database.Base_Entity;
 namespace ApplicationDev.Common.Database.Interfaces
 {
 	//Abstract of what my Base Repository should have

@@ -4,15 +4,20 @@ using ApplicationDev.Modules.Admin.Repos;
 using ApplicationDev.Modules.Admin.Services;
 using ApplicationDev.Modules.User.Repos;
 using ApplicationDev.Modules.User.Services;
+using ApplicationDev.Modules.Comments.Repos;
+using ApplicationDev.Modules.Comments.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using ApplicationDev.Common.Middlewares.Authentication;
+using ApplicationDev.Common.Middleware.Authentication;
 using ApplicationDev.Modules.Authentication.Services;
-
+using ApplicationDev.Modules.Votes.Repos;
 using ApplicationDev.Common.Helper.EmailService;
 using dotenv.net;
 using ApplicationDev.Modules.Blogs.Repos;
 using ApplicationDev.Modules.Blogs.Services;
+using ApplicationDev.Modules.Votes.Services;
+using ApplicationDev.Modules.Comments.Repos;
+using ApplicationDev.Modules.Comments.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +40,7 @@ builder.Services.AddSwaggerGen(c => //swaggerGen method takes a configuration ac
 		BearerFormat = "JWT",
 		Scheme = "bearer"
 	});
+
 
 	c.AddSecurityRequirement(new OpenApiSecurityRequirement
 		{
@@ -61,6 +67,7 @@ builder.Services.AddSwaggerGen(c => //swaggerGen method takes a configuration ac
 	c.SwaggerDoc("user", new OpenApiInfo { Title = "User API", Version = "v1" });
 
 
+
 	// Decides which controller action (Api Endpoints) should be included in the swagger documentation
 	c.DocInclusionPredicate((docName, apiDesc) =>
 	{
@@ -85,12 +92,20 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<RoleAuthentication>();
 
 //Admin Injectable
-builder.Services.AddScoped<AdminRepository>();
+builder.Services.AddScoped<AdminRepos>();
 builder.Services.AddScoped<AdminService>();
 
 //Blogs Injectable
-builder.Services.AddScoped<BlogRepository>();
+builder.Services.AddScoped<BlogRepos>();
 builder.Services.AddScoped<BlogService>();
+
+//Comment Injectable
+builder.Services.AddScoped<CommentsRepos>();
+builder.Services.AddScoped<CommentsService>();
+
+//Vote Injectable
+builder.Services.AddScoped<VoteRepos>();
+builder.Services.AddScoped<VoteService>();
 
 //Helper Injectable
 builder.Services.AddScoped<EmailService>();

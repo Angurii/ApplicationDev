@@ -5,9 +5,9 @@ namespace ApplicationDev.Modules.Admin.Services
 {
 	public class AdminService
 	{
-		private readonly AdminRepository _adminRepo;
+		private readonly AdminRepos _adminRepo;
 		private readonly ILogger<AdminService> _logger;
-		public AdminService(AdminRepository adminRepo, ILogger<AdminService> logger)
+		public AdminService(AdminRepos adminRepo, ILogger<AdminService> logger)
 		{
 			_adminRepo = adminRepo;
 			_logger = logger;

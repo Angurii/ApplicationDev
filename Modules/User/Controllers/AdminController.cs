@@ -1,7 +1,7 @@
 ﻿using ApplicationDev.Modules.User.DTOs;
 using ApplicationDev.Modules.User.Services;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationDev.Common.Middlewares.Authentication;
+using ApplicationDev.Common.Middleware.Authentication;
 namespace ApplicationDev.Modules.User.Controllers
 {
 	[ApiExplorerSettings(GroupName = "admin")] //Provides metadata about the API Explorer group that an action belongs to.
@@ -18,7 +18,7 @@ namespace ApplicationDev.Modules.User.Controllers
 
 
 		[HttpPost("register")]
-		[ServiceFilter(typeof(RoleAuthentication))]
+		//[ServiceFilter(typeof(RoleAuthentication))]
 
 		public async Task<IActionResult> CreateUser(UserCreateDTO incomingData)
 		{
